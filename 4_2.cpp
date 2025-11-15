@@ -75,7 +75,6 @@ static void drawScene(bool pickMode = false) {
         glDisable(GL_LIGHTING);
         glShadeModel(GL_FLAT);
         glDisable(GL_DITHER);
-        // Убираем сглаживание для точного пикинга
         glDisable(GL_LINE_SMOOTH);
         glDisable(GL_POLYGON_SMOOTH);
         glDisable(GL_BLEND);
@@ -132,18 +131,15 @@ static void drawScene(bool pickMode = false) {
 }
 
 static void pickAt(int mx, int my) {
-    // Сохраняем текущий буфер
     glDrawBuffer(GL_BACK);
     glReadBuffer(GL_BACK);
 
     int readY = winH - 1 - my;
     unsigned char pixel[3] = { 0,0,0 };
 
-    // Временно отключаем сглаживание для точного пикинга
     bool wasAA = useAA;
     useAA = false;
 
-    // Рендерим сцену в режиме пикинга
     glViewport(0, 0, winW, winH);
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,10 +150,8 @@ static void pickAt(int mx, int my) {
     glFlush();
     glFinish();
 
-    // Читаем пиксель
     glReadPixels(mx, readY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
 
-    // Восстанавливаем настройки
     useAA = wasAA;
 
     cout << "Picked color = ("
@@ -166,7 +160,6 @@ static void pickAt(int mx, int my) {
         << static_cast<int>(pixel[2]) << ")\n";
 
     int picked = -1;
-    // Сравниваем с нашими цветами пикинга
     for (int id = 0; id < 3; ++id) {
         if (pixel[0] == pickColorBytes[id][0] &&
             pixel[1] == pickColorBytes[id][1] &&
@@ -177,7 +170,7 @@ static void pickAt(int mx, int my) {
     }
 
     if (picked >= 0) {
-        // Изменяем цвет выбранного объекта
+        // Г€Г§Г¬ГҐГ­ГїГҐГ¬ Г¶ГўГҐГІ ГўГ»ГЎГ°Г Г­Г­Г®ГЈГ® Г®ГЎГєГҐГЄГІГ 
         objColor[picked][0] = static_cast<float>(rand()) / RAND_MAX;
         objColor[picked][1] = static_cast<float>(rand()) / RAND_MAX;
         objColor[picked][2] = static_cast<float>(rand()) / RAND_MAX;
@@ -198,7 +191,6 @@ static void pickAt(int mx, int my) {
 static void display() {
     glViewport(0, 0, winW, winH);
 
-    // Настройка сглаживания
     if (useAA) {
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_POLYGON_SMOOTH);
@@ -216,7 +208,6 @@ static void display() {
 
     setupCameraAndLight();
 
-    // Рисуем оси в центре для ориентира
     glPushMatrix();
     glTranslatef(camCenterX, camCenterY, camCenterZ);
     glDisable(GL_LIGHTING);
@@ -228,10 +219,9 @@ static void display() {
     glEnd();
     glPopMatrix();
 
-    // Рисуем основную сцену
     drawScene(false);
 
-    // HUD (информация на экране)
+    // HUD
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -327,7 +317,7 @@ static void initGL() {
     glEnable(GL_NORMALIZE);
     glDisable(GL_COLOR_MATERIAL);
 
-    // Начальные настройки сглаживания
+    // ГЌГ Г·Г Г«ГјГ­Г»ГҐ Г­Г Г±ГІГ°Г®Г©ГЄГЁ Г±ГЈГ«Г Г¦ГЁГўГ Г­ГЁГї
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
@@ -337,7 +327,6 @@ static void initGL() {
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
 
-    // Используем двойную буферизацию и буфер глубины
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(winW, winH);
     glutCreateWindow("Object Picking - Simple Version");
@@ -362,4 +351,5 @@ int main(int argc, char** argv) {
 
     glutMainLoop();
     return 0;
+
 }
